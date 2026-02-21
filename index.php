@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treinamento Ademicon - Consórcio</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Ademicon Colors (Corrected Palette) */
+            --color-dark-bg: #0a0a0a;
+            --color-dark-surface: #1a1a1a;
+            --color-red: #d0021b; /* Main Ademicon Red */
+            --color-red-glow: rgba(208, 2, 27, 0.4);
+            --color-red-dark: #8c0005;
+            --color-text: #fafafa;
+            --color-text-muted: #a3a3a3;
+            --color-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--color-dark-bg);
+            color: var(--color-text);
+            overflow: hidden; /* Swiper will handle scroll */
+        }
+
+        /* Swiper Container */
+        .swiper {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .swiper-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background Effects & Grids */
+        .bg-glow {
+            position: absolute;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, var(--color-red-glow) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            opacity: 0.3;
+            filter: blur(50px);
+            top: -10%;
+            right: -10%;
+            transition: all 1s ease;
+        }
+
+        .dot-grid {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: 0;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .slide-content {
+            z-index: 10;
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Typography */
+        h1, h2 {
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        h1 {
+            font-size: 5rem;
+            background: linear-gradient(90deg, var(--color-white), var(--color-text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 4.5rem;
+            color: var(--color-white);
+        }
+
+        .highlight {
+            color: var(--color-red);
+            -webkit-text-fill-color: var(--color-red);
+            background: none;
+        }
+
+        p {
+            font-size: 1.8rem;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.2s; /* Delay */
+        }
+
+        /* Active Slide Animations (IN) */
+        .swiper-slide-active h1,
+        .swiper-slide-active h2 {
+            opacity: 1;
+            transform: translateY(0);
+            transform: translateX(0); /* For cover */
+        }
+
+        .swiper-slide-active p {
+            opacity: 1;
+            transform: translateY(0);
+            transform: translateX(0); /* For cover */
+        }
+
+        .swiper-slide-active .stagger-1 { transition-delay: 0.2s; opacity: 1; transform: translateY(0); transform: translateX(0); }
+        .swiper-slide-active .stagger-2 { transition-delay: 0.4s; opacity: 1; transform: translateY(0); transform: translateX(0); scale: 1; }
+        .swiper-slide-active .stagger-3 { transition-delay: 0.6s; opacity: 1; transform: translateY(0); transform: translateX(0); scale: 1; }
+        .swiper-slide-active .stagger-4 { transition-delay: 0.8s; opacity: 1; transform: translateY(0); transform: translateX(0); scale: 1; }
+
+        /* Cover Slide */
+        .slide-cover {
+            padding: 0;
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+
+        .cover-image-container {
+            width: 45%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: none; /* Hide on small mobile by default */
+        }
+        
+        @media (min-width: 768px) {
+            .cover-image-container {
+                display: block;
+            }
+        }
+
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom center; /* Align portrait to the bottom */
+            opacity: 0;
+            transform: scale(1.05);
+            transition: all 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 3;
+            position: relative;
+        }
+
+        .cover-image-glow {
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 80%;
+            background: radial-gradient(ellipse, var(--color-red-glow) 0%, transparent 70%);
+            filter: blur(60px);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 2s ease 1s;
+        }
+
+        .swiper-slide-active .cover-image-glow {
+            opacity: 0.8;
+        }
+
+        /* User Photo Decorators */
+        .photo-ring {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1s ease 1s;
+            pointer-events: none;
+        }
+
+        .photo-ring-2 {
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            border: 2px solid rgba(208, 2, 27, 0.3);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1s ease 1.2s;
+            pointer-events: none;
+        }
+
+        @keyframes rotateRing {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes rotateRingReverse {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(-360deg); }
+        }
+
+        .swiper-slide-active .photo-ring {
+            opacity: 1;
+            animation: rotateRing 40s linear infinite;
+        }
+
+        .swiper-slide-active .photo-ring-2 {
+            opacity: 1;
+            animation: rotateRingReverse 30s linear infinite;
+        }
+
+        .photo-glass-card {
+            position: absolute;
+            bottom: 15%;
+            right: 5%;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--color-red);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.5s;
+        }
+
+        .swiper-slide-active .photo-glass-card {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .glass-icon {
+            background: rgba(208, 2, 27, 0.2);
+            color: var(--color-red);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .glass-text strong {
+            display: block;
+            color: var(--color-white);
+            font-size: 1.1rem;
+        }
+
+        .glass-text span {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        .photo-decor-dots {
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            z-index: 1;
+            opacity: 0;
+        }
+
+        .photo-decor-dots span {
+            width: 6px;
+            height: 6px;
+            background-color: var(--color-red);
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        .swiper-slide-active .photo-decor-dots {
+            opacity: 1;
+            transition: opacity 1s ease 1.8s;
+            animation: pulse-dots 3s infinite alternate;
+        }
+
+        @keyframes pulse-dots {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.8; }
+        }
+
+        .cover-gradient {
+            /* Removing the gradient over the image to keep the photo bright */
+        }
+
+        .swiper-slide-active .cover-image {
+            opacity: 1; /* Removendo o fade escurecido */
+            transform: scale(1);
+        }
+
+        .cover-content {
+            flex: 1;
+            padding: 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+            height: 100%;
+            position: relative;
+        }
+
+        .cover-content h1 {
+            font-size: 5.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            transform: translateX(40px);
+        }
+
+        .cover-content .subtitle {
+            font-size: 2rem;
+            letter-spacing: 5px;
+            color: var(--color-red);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            transform: translateX(40px);
+            opacity: 0;
+        }
+
+        .cover-content .description {
+            font-size: 1.8rem;
+            max-width: 800px;
+            transform: translateX(40px);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--color-red);
+            padding-left: 1.5rem;
+        }
+
+        /* Decorative Floating Elements (Slide 1) */
+        .floating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.4rem;
+            color: var(--color-text);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .floating-badge i {
+            color: var(--color-red);
+            font-size: 1.2rem;
+        }
+
+        .swiper-slide-active .floating-badge {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1s;
+        }
+
+        /* Presentation Visual Decorators */
+        .watermark {
+            position: absolute;
+            top: 15%;
+            left: -5%;
+            font-size: 15vw;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.02);
+            z-index: 0;
+            user-select: none;
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: -5px;
+            transform: rotate(-5deg);
+        }
+
+        .abstract-shape {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, transparent 0%, rgba(208, 2, 27, 0.05) 100%);
+            border: 1px solid rgba(208, 2, 27, 0.1);
+            border-radius: 30px;
+            transform: rotate(45deg);
+            right: 15%;
+            top: 20%;
+            z-index: 0;
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .abstract-line {
+            position: absolute;
+            width: 100px;
+            height: 4px;
+            background: var(--color-red);
+            top: 15%; /* Elevado mais ainda para não sobrepor a badge que agora está no meio */
+            left: 5%;
+            z-index: 10;
+            opacity: 0;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        .swiper-slide-active .abstract-line {
+            opacity: 1;
+            transform: scaleX(1);
+            transition: all 1s cubic-bezier(0.25, 1, 0.5, 1) 0.8s;
+        }
+
+        /* Slide 2: O que é Consórcio (Creative Layout) */
+        .concept-layout {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 4rem;
+        }
+        
+        .concept-text-side {
+            flex: 1;
+            text-align: left;
+        }
+
+        .concept-text-side h2 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            transform: translateX(-40px);
+        }
+
+        .concept-text-side p {
+            font-size: 1.4rem;
+            transform: translateX(-40px);
+        }
+
+        .swiper-slide-active .concept-text-side h2,
+        .swiper-slide-active .concept-text-side p {
+            transform: translateX(0);
+        }
+
+        .concept-cards-side {
+            flex: 1.2;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            position: relative;
+        }
+
+        .concept-box {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .concept-box::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background: var(--color-red);
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: 0;
+            opacity: 0.3;
+            transition: opacity 0.5s ease;
+        }
+
+        .concept-box:hover::before {
+            opacity: 0.6;
+        }
+
+        .concept-box:nth-child(2) {
+            margin-top: 2rem; /* Creates a masonry effect natively in grid */
+        }
+        
+        .concept-box:nth-child(3) {
+            grid-column: span 2;
+            flex-direction: row;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .swiper-slide-active .concept-box {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .concept-box-icon {
+            font-size: 2.5rem;
+            color: var(--color-red);
+            z-index: 1;
+            background: rgba(208, 2, 27, 0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 16px;
+        }
+
+        .concept-box-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-white);
+            z-index: 1;
+            margin: 0;
+        }
+
+        .concept-box-desc {
+            font-size: 1.3rem;
+            color: var(--color-text-muted);
+            margin: 0;
+            z-index: 1;
+            opacity: 1;
+            transform: none;
+            line-height: 1.5;
+        }
+
+        /* Large background typography */
+        .huge-bg-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 25vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.015);
+            white-space: nowrap;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Slide 3: Timeline / How it Works */
+        .timeline-container {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            margin-top: 10rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .timeline-track {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-50%);
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 0%;
+            background: var(--color-red);
+            border-radius: 2px;
+            box-shadow: 0 0 15px var(--color-red-glow), 0 0 30px var(--color-red);
+            transition: width 2s cubic-bezier(0.25, 1, 0.5, 1) 0.5s;
+        }
+
+        .swiper-slide-active .timeline-progress {
+            width: 100%;
+        }
+
+        .timeline-node {
+            position: relative;
+            z-index: 2;
+            width: 25%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timeline-point {
+            width: 24px;
+            height: 24px;
+            background: var(--color-dark-surface);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .swiper-slide-active .timeline-point {
+            transform: translate(-50%, -50%) scale(1);
+            border-color: var(--color-red);
+            background: var(--color-red-dark);
+            box-shadow: 0 0 20px var(--color-red-glow);
+        }
+
+        .swiper-slide-active .timeline-node:nth-child(2) .timeline-point { transition-delay: 1.0s; }
+        .swiper-slide-active .timeline-node:nth-child(3) .timeline-point { transition-delay: 1.5s; }
+        .swiper-slide-active .timeline-node:nth-child(4) .timeline-point { transition-delay: 2.0s; }
+        .swiper-slide-active .timeline-node:nth-child(5) .timeline-point { transition-delay: 2.5s; }
+
+        .timeline-content {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 16px;
+            width: 280px;
+            text-align: center;
+            opacity: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .timeline-node:nth-child(odd) .timeline-content {
+            bottom: 30px;
+            border-bottom: 2px solid var(--color-red);
+            transform: translate(-50%, 30px);
+        }
+
+        .timeline-node:nth-child(even) .timeline-content {
+            top: 30px;
+            border-top: 2px solid var(--color-red);
+            transform: translate(-50%, -30px);
+        }
+
+        .swiper-slide-active .timeline-node:nth-child(odd) .timeline-content {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .swiper-slide-active .timeline-node:nth-child(even) .timeline-content {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .swiper-slide-active .timeline-node:nth-child(2) .timeline-content { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.2s; }
+        .swiper-slide-active .timeline-node:nth-child(3) .timeline-content { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.7s; }
+        .swiper-slide-active .timeline-node:nth-child(4) .timeline-content { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 2.2s; }
+        .swiper-slide-active .timeline-node:nth-child(5) .timeline-content { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 2.7s; }
+
+        .timeline-icon {
+            font-size: 1.8rem;
+            color: var(--color-white);
+            background: linear-gradient(135deg, var(--color-red) 0%, var(--color-red-dark) 100%);
+            width: 45px;
+            height: 45px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 5px 15px rgba(208, 2, 27, 0.3);
+        }
+
+        .timeline-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--color-white);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-desc {
+            font-size: 1.1rem;
+            color: var(--color-text-muted);
+            line-height: 1.4;
+        }
+
+        /* Slide 4: Segments (Expanding Accordion) */
+        .segments {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+            width: 100%;
+            height: 400px;
+        }
+
+        .segment-card {
+            height: 100%;
+            flex: 1;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            padding: 2.5rem 1.5rem;
+            text-decoration: none;
+            cursor: default;
+            opacity: 0;
+            transform: scale(0.9) translateY(30px);
+            transition: transform 0.8s, opacity 0.8s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 15, 15, 0.5); /* Base bg just in case */
+        }
+
+        .swiper-slide-active .segment-card {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .segment-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10, 10, 10, 0.95) 0%, rgba(10, 10, 10, 0.3) 100%);
+            z-index: 1;
+        }
+
+        .segment-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            filter: brightness(0.6); /* Fully colored by default, just darkened for text contrast */
+        }
+
+        .segment-number {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.08);
+            z-index: 2;
+            line-height: 1;
+        }
+
+        .segment-content {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .segment-title {
+            font-size: 2.2rem;
+            color: var(--color-white);
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .segment-icon {
+            font-size: 2rem;
+            color: var(--color-red);
+        }
+
+        .segment-desc {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+            opacity: 1; /* Always visible */
+            line-height: 1.5;
+        }
+
+        /* Controls */
+        /* Segment Sub-slides (Metrics) */
+        .metrics-container {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 4rem;
+            width: 100%;
+        }
+
+        .metric-card {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            text-align: center;
+            flex: 1;
+            max-width: 350px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 5px;
+            background: var(--color-red);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 5px 15px var(--color-red-glow);
+        }
+
+        .metric-icon {
+            font-size: 2.5rem;
+            color: var(--color-red);
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-value {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--color-white);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .metric-sub {
+            font-size: 1.4rem;
+            color: var(--color-red);
+            font-weight: 600;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-label {
+            font-size: 1.2rem;
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        .metrics-disclaimer {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2rem;
+            text-align: center;
+            font-style: italic;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .swiper-slide-active .metric-card,
+        .swiper-slide-active .metrics-disclaimer {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .swiper-slide-active .metric-card:nth-child(1) { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.5s; }
+        .swiper-slide-active .metric-card:nth-child(2) { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.8s; }
+        .swiper-slide-active .metric-card:nth-child(3) { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.1s; }
+        .swiper-slide-active .metrics-disclaimer { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.5s; }
+
+        /* Rules Showcase Cards */
+        .rules-showcase {
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            width: 100%;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .rule-row {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 2.5rem;
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+        .rule-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .rule-big-text {
+            flex: 0 0 250px;
+            font-size: 5rem;
+            font-weight: 800;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--color-red);
+            text-transform: uppercase;
+            text-align: right;
+            line-height: 1;
+        }
+        .rule-details {
+            flex: 1;
+            text-align: left;
+        }
+        .rule-details h4 {
+            font-size: 2.2rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .rule-details p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.4rem;
+            line-height: 1.5;
+        }
+        .swiper-slide-active .rule-row {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .swiper-slide-active .rule-row:nth-child(1) { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.5s; }
+        .swiper-slide-active .rule-row:nth-child(2) { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.7s; }
+        .swiper-slide-active .rule-row:nth-child(3) { transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.9s; }
+        .swiper-pagination-bullet {
+            background: var(--color-text-muted);
+            opacity: 0.5;
+        }
+        .swiper-pagination-bullet-active {
+            background: var(--color-red);
+            opacity: 1;
+        }
+        
+        /* Segment Detail Slides (Slides 5, 6, 7) */
+        .segment-detail-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4rem;
+        }
+
+        .segment-detail-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .segment-detail-text h2 {
+            font-size: 4.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateX(-40px);
+        }
+
+        .segment-detail-text h2 i {
+            color: var(--color-red);
+            font-size: 4rem;
+        }
+
+        .segment-detail-text p {
+            font-size: 1.6rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2.5rem;
+            transform: translateX(-40px);
+        }
+
+        .detail-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .feature-icon {
+            color: var(--color-red);
+            font-size: 1.5rem;
+            margin-top: 0.2rem;
+        }
+
+        .feature-text h4 {
+            font-size: 1.4rem;
+            color: var(--color-white);
+            margin: 0 0 0.3rem 0;
+        }
+
+        .feature-text p {
+            font-size: 1.1rem;
+            color: var(--color-text-muted);
+            margin: 0;
+            transform: none !important; /* Resetting global p transform */
+        }
+
+        .segment-detail-image-wrapper {
+            flex: 1;
+            height: 80%;
+            position: relative;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: scale(0.95) translateX(30px);
+            transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .segment-detail-image-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(208,2,27,0.2) 0%, transparent 100%);
+            z-index: 1;
+        }
+
+        .segment-detail-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(0.2);
+            transition: all 0.5s ease;
+        }
+
+        .segment-detail-image-wrapper:hover .segment-detail-img {
+            filter: grayscale(0);
+            transform: scale(1.05);
+        }
+
+        .swiper-slide-active .segment-detail-text h2,
+        .swiper-slide-active .segment-detail-text p {
+            transform: translateX(0);
+        }
+
+        .swiper-slide-active .segment-detail-image-wrapper {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+        }
+
+        .swiper-slide-active .feature-item {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .swiper-slide-active .feature-item:nth-child(1) { transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.6s; }
+        .swiper-slide-active .feature-item:nth-child(2) { transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1) 0.8s; }
+        .swiper-slide-active .feature-item:nth-child(3) { transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1) 1.0s; }
+        .swiper-slide-active .feature-item:nth-child(4) { transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1) 1.2s; }
+
+        @media (max-width: 992px) {
+            .concept-layout { flex-direction: column; gap: 2rem; }
+            .concept-text-side { text-align: center; }
+            .concept-text-side h2 { font-size: 3rem; transform: translateY(30px); }
+            .concept-text-side p { transform: translateY(30px); }
+            .concept-cards-side { grid-template-columns: 1fr; width: 100%; padding: 0 1rem; }
+            .concept-box:nth-child(2) { transform: translateY(50px) scale(0.9); }
+            .swiper-slide-active .concept-box:nth-child(2) { transform: translateY(0) scale(1); }
+            .concept-box:nth-child(3) { grid-column: span 1; max-width: 100%; flex-direction: column; align-items: flex-start; }
+            .huge-bg-text { font-size: 35vw; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .cover-content h1 { font-size: 3rem; }
+            h2 { font-size: 2rem; }
+            p { font-size: 1.1rem; }
+            .segments { flex-direction: column; }
+            .segment-card { height: 200px; }
+            .cover-content { padding: 2rem; align-items: center; text-align: center; }
+            .cover-content .subtitle { font-size: 1rem; }
+            .cover-content .description { font-size: 1.1rem; }
+            /* Timeline Mobile Responsive */
+            .timeline-container { height: auto; flex-direction: column; gap: 2rem; margin-top: 2rem; }
+            .timeline-track { left: 50%; top: 0; bottom: 0; width: 4px; height: 100%; transform: translateX(-50%); }
+            .timeline-progress { width: 100%; height: 0%; transition: height 2s cubic-bezier(0.25, 1, 0.5, 1) 0.5s; }
+            .swiper-slide-active .timeline-progress { height: 100%; width: 100%; }
+            .timeline-node { width: 100%; padding-left: 50%; flex-direction: row; justify-content: flex-start; }
+            .timeline-node:nth-child(even) { padding-left: 0; padding-right: 50%; justify-content: flex-end; }
+            .timeline-point { left: 0; transform: translate(-50%, -50%) scale(0); }
+            .timeline-node:nth-child(even) .timeline-point { left: 100%; }
+            .timeline-content { position: relative; left: 0; transform: none !important; bottom: auto !important; top: auto !important; width: 100%; margin-left: 20px; }
+            .timeline-node:nth-child(even) .timeline-content { margin-left: 0; margin-right: 20px; }
+            
+            /* Segment Details Mobile Responsive */
+            .segment-detail-layout, .segment-detail-layout[style*="flex-direction: row-reverse;"] { flex-direction: column; height: auto; gap: 2rem; padding: 2rem 0; }
+            .segment-detail-text h2 { font-size: 2.5rem; justify-content: center; }
+            .segment-detail-text p { font-size: 1.1rem; text-align: center; }
+            .detail-features { grid-template-columns: 1fr; }
+            .segment-detail-image-wrapper { height: 300px; width: 100%; }
+            
+            /* Metrics Sub-Slide Mobile Responsive */
+            .metrics-container { flex-direction: column; gap: 1.5rem; align-items: center; margin-top: 2rem; }
+            .metric-card { width: 100%; max-width: 100%; padding: 2rem 1.5rem; }
+            .metric-value { font-size: 2.5rem; }
+            .metric-sub { font-size: 1rem; }
+            
+            /* Rules Showcase Mobile */
+            .rules-showcase { gap: 1.5rem; }
+            .rule-row { flex-direction: column; gap: 1rem; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.5rem; }
+            .rule-row:last-child { border-bottom: none; }
+            .rule-big-text { flex: auto; font-size: 3.5rem; text-align: center; -webkit-text-stroke: 1px var(--color-red); }
+            .rule-details { text-align: center; }
+            .rule-details h4 { justify-content: center; }
+            
+            /* Comparison Grid Mobile */
+            .comparison-layout { flex-direction: column; height: auto; gap: 2rem; margin-top: 1rem; }
+            .comparison-col, .col-good, .col-bad { width: 100%; text-align: center; padding: 2rem 1.5rem; }
+            .comparison-col { border: 1px solid rgba(255,255,255,0.1); border-top: 4px solid #555; border-right: none; border-left: none; }
+            .col-good { border-top: 4px solid var(--color-red); }
+            .comparison-center-img { width: 100%; height: 300px; display: none; } /* Ocultar no mobile para poupar espaço */
+            .comparison-list li { justify-content: center; font-size: 1.1rem; }
+            .col-bad .comparison-list li { justify-content: center; flex-direction: row-reverse; }
+        }
+
+        /* Consultant Comparison Grid (Desktop) */
+        .comparison-layout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1300px;
+            margin: 2rem auto 0 auto;
+            gap: 2rem;
+            height: 500px;
+        }
+
+        .comparison-col {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2.5rem;
+            height: 100%;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .col-bad {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.8), rgba(10, 10, 10, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: right;
+            border-right: 4px solid #555;
+        }
+
+        .col-good {
+            background: linear-gradient(145deg, rgba(208, 2, 27, 0.15), rgba(10, 10, 10, 0.9));
+            border: 1px solid rgba(208, 2, 27, 0.3);
+            text-align: left;
+            border-left: 4px solid var(--color-red);
+            box-shadow: 0 0 40px rgba(208, 2, 27, 0.1);
+        }
+
+        .comparison-center-img {
+            width: 400px;
+            height: 100%;
+            border-radius: 20px;
+            object-fit: cover;
+            z-index: 10;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.1);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: grayscale(30%) contrast(1.2);
+        }
+
+        .comparison-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            line-height: 1.1;
+        }
+
+        .col-bad .comparison-title { color: #888; }
+        .col-good .comparison-title { color: var(--color-white); }
+
+        .comparison-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .comparison-list li {
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .col-bad .comparison-list li {
+            color: #777;
+            justify-content: flex-end;
+        }
+
+        .col-good .comparison-list li {
+            color: #ddd;
+            justify-content: flex-start;
+        }
+
+        .col-bad .comparison-list i { color: #555; font-size: 1.2rem; }
+        .col-good .comparison-list i { color: var(--color-red); font-size: 1.5rem; }
+
+        .swiper-slide-active .comparison-col { opacity: 1; transform: translateY(0); }
+        .swiper-slide-active .col-bad { transition-delay: 0.4s; }
+        .swiper-slide-active .col-good { transition-delay: 0.8s; }
+        .swiper-slide-active .comparison-center-img { opacity: 1; transform: scale(1); transition-delay: 0.6s; }
+    </style>
+</head>
+<body>
+
+    <!-- Swiper -->
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            
+            <!-- Slide 1: Cover / Introdução -->
+            <div class="swiper-slide slide-cover">
+                <div class="dot-grid"></div>
+                <!-- Seção da Foto -->
+                <div class="cover-image-container">
+                    <!-- Photo Decorators -->
+                    <div class="photo-decor-dots">
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="photo-ring"></div>
+                    <div class="photo-ring-2"></div>
+
+                    <div class="cover-image-glow"></div>
+                    <!-- Foto Local -->
+                    <div class="cover-image" style="background-image: url('foto-perfil.png');"></div>
+                    
+                    <!-- Floating Glass Card Data -->
+                    <div class="photo-glass-card">
+                        <div class="glass-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="glass-text">
+                            <strong>Especialista</strong>
+                            <span>Ademicon</span>
+                        </div>
+                    </div>
+
+                    <div class="cover-gradient">
+                        <!-- Removing the gradient over the image to keep the photo bright -->
+                    </div>
+                </div>
+                
+                <!-- Conteúdo de Texto -->
+                <div class="cover-content">
+                    <div class="watermark">ADEMICON</div>
+                    <div class="abstract-shape"></div>
+                    <div class="abstract-line"></div>
+                    
+                    <div class="floating-badge">
+                        <i class="fa-solid fa-star"></i> Oficial e Atualizado
+                    </div>
+                    <div class="bg-glow" style="top: -20%; left: -20%;"></div>
+                    <p class="subtitle stagger-1">Treinamento para Consultores</p>
+                    <h1 class="stagger-2">Descomplicando<br>o <span class="highlight">Consórcio</span></h1>
+                    <p class="description stagger-3">Domine os fundamentos do produto, entenda a verdadeira jornada do cliente e aprimore seus argumentos de venda como especialista Ademicon.</p>
+                </div>
+            </div>
+
+            <!-- Slide 2: O que é Consórcio (Creative Redesign) -->
+            <div class="swiper-slide">
+                <div class="huge-bg-text">POOL</div>
+                <div class="bg-glow" style="top: auto; bottom: -20%; right: -10%;"></div>
+                
+                <div class="slide-content" style="max-width: 1400px; width: 90%;">
+                    <div class="concept-layout">
+                        <!-- Left Text Side -->
+                        <div class="concept-text-side">
+                            <h2 class="stagger-1">Afinal, o que é o<br><span class="highlight">Consórcio?</span></h2>
+                            <p class="stagger-2">Sua principal ferramenta de crédito. O consórcio não é mágica, é planejamento financeiro inteligente em grupo, livre da burocracia e juros abusivos dos bancos.</p>
+                        </div>
+
+                        <!-- Right Cards Side -->
+                        <div class="concept-cards-side">
+                            <!-- Card 1 -->
+                            <div class="concept-box stagger-2">
+                                <div class="concept-box-icon"><i class="fa-solid fa-users-rays"></i></div>
+                                <h3 class="concept-box-title">União de Forças</h3>
+                                <p class="concept-box-desc">Seus clientes (pessoas físicas ou jurídicas) com objetivos em comum formam um grande fundo financeiro colaborativo para se auto-financiarem.</p>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="concept-box stagger-3">
+                                <div class="concept-box-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+                                <h3 class="concept-box-title">Poupança Conjunta</h3>
+                                <p class="concept-box-desc">Os consorciados contribuem mensalmente. É seu papel demonstrar como essa disciplina financeira fortalece o poder de compra de todo o grupo.</p>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="concept-box stagger-4">
+                                <div class="concept-box-icon"><i class="fa-solid fa-percent"></i></div>
+                                <div>
+                                    <h3 class="concept-box-title">Juros Zero</h3>
+                                    <p class="concept-box-desc">Seu maior argumento de venda. <strong>Não cobramos juros</strong>, apenas uma taxa de administração fixa e clara que é totalmente diluída nas parcelas do cliente.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: Como Funciona (Timeline) -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: auto; bottom: -10%; left: -10%;"></div>
+                
+                <div class="slide-content" style="max-width: 1200px; width: 90%;">
+                    <h2 class="stagger-1" style="text-align: center;">A Jornada do <span class="highlight">Consorciado</span></h2>
+                    <p class="stagger-2" style="text-align: center;">Conhecer profundamente cada etapa é fundamental para você guiar o seu cliente com total segurança e clareza.</p>
+                    
+                    <div class="timeline-container">
+                        <!-- Connecting Track -->
+                        <div class="timeline-track">
+                            <div class="timeline-progress"></div>
+                        </div>
+
+                        <!-- Step 1 -->
+                        <div class="timeline-node">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-icon"><i class="fa-solid fa-users"></i></div>
+                                <div class="timeline-title">1. A Consultoria</div>
+                                <div class="timeline-desc">Você diagnostica a necessidade, dimensiona o plano ideal e insere o cliente em um grupo saudável gerido pela Ademicon.</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="timeline-node">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-icon"><i class="fa-solid fa-piggy-bank"></i></div>
+                                <div class="timeline-title">2. A Contribuição</div>
+                                <div class="timeline-desc">O cliente inicia o pagamento assertivo das parcelas. A adimplência do seu cliente garante a saúde do grupo e as suas comissões.</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="timeline-node">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-icon"><i class="fa-solid fa-ticket"></i></div>
+                                <div class="timeline-title">3. A Contemplação</div>
+                                <div class="timeline-desc">O momento de ouro! Acompanhe o cliente nos sorteios mensais e auxilie com expertise na estruturação estratégica de lances.</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="timeline-node">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-icon"><i class="fa-solid fa-house-circle-check"></i></div>
+                                <div class="timeline-title">4. A Conquista</div>
+                                <div class="timeline-desc">Seu cliente adquire o bem com o poder de compra à vista! Todo o ciclo é finalizado e a confiança na sua consultoria se converte em novas indicações.</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4: Segmentos (Accordion Responsivo) -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60vw;"></div>
+                <div class="slide-content" style="max-width: 1400px; width: 95%;">
+                    <h2 class="stagger-1" style="text-align: center;">Seu <span class="highlight">Portfólio</span> de Produtos</h2>
+                    <p class="stagger-2" style="text-align: center;">Soluções amplas para você atuar cross-sell e resolver qualquer necessidade do seu cliente, do carro à fábrica.<br>Veja os nichos da companhia.</p>
+                    
+                    <div class="segments">
+                        <!-- Imobiliário -->
+                        <div class="segment-card stagger-2">
+                            <div class="segment-bg" style="background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="segment-number">01</div>
+                            <div class="segment-content">
+                                <h3 class="segment-title">
+                                    <i class="fa-solid fa-building segment-icon"></i>
+                                    Imobiliário
+                                </h3>
+                                <p class="segment-desc">O carro-chefe de grandes volumes. Ofereça crédito para a casa própria, construção, reforma e salas corporativas. O ticket médio aqui gera altos ganhos comissionados.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Automotivo -->
+                        <div class="segment-card stagger-3">
+                            <div class="segment-bg" style="background-image: url('https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="segment-number">02</div>
+                            <div class="segment-content">
+                                <h3 class="segment-title">
+                                    <i class="fa-solid fa-car segment-icon"></i>
+                                    Automotivo
+                                </h3>
+                                <p class="segment-desc">Giro dinâmico. Atenda com maestria desde a PF buscando trocar de SUV até grandes empresários montando ou renovando toda a sua frota de pesados e maquinários.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Serviços -->
+                        <div class="segment-card stagger-4">
+                            <div class="segment-bg" style="background-image: url('https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="segment-number">03</div>
+                            <div class="segment-content">
+                                <h3 class="segment-title">
+                                    <i class="fa-solid fa-plane-departure segment-icon"></i>
+                                    Serviços
+                                </h3>
+                                <p class="segment-desc">Excelente "quebrador de gelo" para captação. Planejamento com tickets menores para viagens, reformas express e demandas estéticas sem os altíssimos juros do cartão.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Imobiliário Detail -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: -20%; right: -20%;"></div>
+                <div class="huge-bg-text" style="font-size: 15vw; color: rgba(255,255,255,0.01);">IMOBILIÁRIO</div>
+                
+                <div class="slide-content" style="max-width: 1400px; width: 95%;">
+                    <div class="segment-detail-layout">
+                        <div class="segment-detail-text">
+                            <h2 class="stagger-1"><i class="fa-solid fa-building"></i> Imobiliário</h2>
+                            <p class="stagger-2">O grande motor de vendas. Argumente que é o caminho mais seguro para o seu cliente expandir patrimônio ou sair do aluguel sem os juros absurdos de um financiamento bancário.</p>
+                            
+                            <div class="detail-features">
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-house-chimney feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Aposentadoria Imobiliária</h4>
+                                        <p>Forme uma carteira de imóveis para garantir renda futura passiva com aluguéis.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-wallet feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Investimento Diversificado</h4>
+                                        <p>Proteja e expanda o capital adquirindo patrimônio sólido com alta valorização.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-trowel-bricks feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Construir ou Reformar</h4>
+                                        <p>Ofereça para modernização ou para ganhos de capital em projetos do zero.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-building-columns feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Quitar Financiamento</h4>
+                                        <p>Tática Especialista: Use o consórcio para quitar dívidas caras de longo prazo.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="segment-detail-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Imóvel de alto padrão" class="segment-detail-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5.1: Imobiliário Taxas -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: center; left: center;"></div>
+                <div class="huge-bg-text" style="font-size: 10vw; color: rgba(255,255,255,0.01);">MÉTRICAS</div>
+                
+                <div class="slide-content">
+                    <h2 class="stagger-1" style="text-align: center;"><i class="fa-solid fa-building" style="color: var(--color-red); margin-right: 15px;"></i>Imobiliário <span class="highlight">em Números</span></h2>
+                    <p class="stagger-2" style="text-align: center;">Mostre para o cliente a assimetria do financiamento bancário perto destas condições.</p>
+                    
+                    <div class="metrics-container">
+                        <div class="metric-card">
+                            <i class="fa-solid fa-percent metric-icon"></i>
+                            <div class="metric-value">24.20%</div>
+                            <div class="metric-sub">Taxa Administrativa</div>
+                            <p class="metric-label">Argumento de Ouro: Taxa fixa diluída durante todo o prazo, muito inferior aos juros compostos cobrados pela Caixa e Itaú.</p>
+                        </div>
+                        <div class="metric-card">
+                            <i class="fa-regular fa-calendar-days metric-icon"></i>
+                            <div class="metric-value">220</div>
+                            <div class="metric-sub">Meses de Prazo</div>
+                            <p class="metric-label">Equivalente a aproximadamente <strong>18 anos</strong>. O prazo elástico exato que deixa as parcelas atrativas para o seu cliente.</p>
+                        </div>
+                    </div>
+                    <p class="metrics-disclaimer">* Os números acima podem variar de acordo com o grupo vigente.</p>
+                </div>
+            </div>
+
+            <!-- Slide 6: Automotivo Detail -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: 50%; left: -20%; transform: translateY(-50%);"></div>
+                <div class="huge-bg-text" style="font-size: 15vw; color: rgba(255,255,255,0.01);">AUTOMOTIVO</div>
+                
+                <div class="slide-content" style="max-width: 1400px; width: 95%;">
+                    <div class="segment-detail-layout" style="flex-direction: row-reverse;">
+                        <div class="segment-detail-text">
+                            <h2 class="stagger-1"><i class="fa-solid fa-car"></i> Automotivo</h2>
+                            <p class="stagger-2">Alta liquidez e giro rápido. Foque em clientes que buscam programar a renovação constante da garagem ou montar alavancar suas frotas de transporte sem perder dinheiro.</p>
+                            
+                            <div class="detail-features">
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-car-side feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Automóveis (8 Anos)</h4>
+                                        <p>Ideal para a troca programada do veículo de passeio do cliente.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-truck feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Pesados (10 Anos)</h4>
+                                        <p>Construa e expanda frotas B2B: Caminhões, Ônibus e Implemento Rodoviário.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-tractor feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Máquinas Agrícolas</h4>
+                                        <p>Até 3 anos com garantia ou Novos com garantia. Atendimento essencial ao produtor rural.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-motorcycle feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Variações Diversas</h4>
+                                        <p>Motos (5 Anos), Jet Ski (Novos), Embarcações (5 Anos) e Aeronaves (10 Anos).</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="segment-detail-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1549317661-bd32c8eb0bf5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Carro em movimento" class="segment-detail-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6.1: Automotivo Taxas -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: center; left: center;"></div>
+                <div class="huge-bg-text" style="font-size: 10vw; color: rgba(255,255,255,0.01);">MÉTRICAS</div>
+                
+                <div class="slide-content">
+                    <h2 class="stagger-1" style="text-align: center;"><i class="fa-solid fa-car" style="color: var(--color-red); margin-right: 15px;"></i>Automotivo <span class="highlight">em Números</span></h2>
+                    <p class="stagger-2" style="text-align: center;">Venda a ideia de rotatividade e crescimento de frota inteligente e pagando o preço justo.</p>
+                    
+                    <div class="metrics-container">
+                        <div class="metric-card">
+                            <i class="fa-solid fa-percent metric-icon"></i>
+                            <div class="metric-value">15.20%</div>
+                            <div class="metric-sub">Taxa Administrativa</div>
+                            <p class="metric-label">O diferencial absoluto do seu argumento contra as famosas taxas de CDC (Crédito Direto) abusivas cobradas nas concessionárias e BV Financeira.</p>
+                        </div>
+                        <div class="metric-card">
+                            <i class="fa-regular fa-calendar-days metric-icon"></i>
+                            <div class="metric-value">90</div>
+                            <div class="metric-sub">Meses de Prazo</div>
+                            <p class="metric-label">Equivalente a <strong>7 anos e meio</strong>. Prazo elástico que permite o cliente fazer upgrades de categoria sem esmagar o próprio fluxo de caixa mensal.</p>
+                        </div>
+                    </div>
+                    <p class="metrics-disclaimer">* Os números acima podem variar de acordo com o grupo vigente.</p>
+                </div>
+            </div>
+
+
+
+            <!-- Slide 7: Serviços Detail -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="bottom: -20%; right: 10%;"></div>
+                <div class="huge-bg-text" style="font-size: 15vw; color: rgba(255,255,255,0.01);">SERVIÇOS</div>
+                
+                <div class="slide-content" style="max-width: 1400px; width: 95%;">
+                    <div class="segment-detail-layout">
+                        <div class="segment-detail-text">
+                            <h2 class="stagger-1"><i class="fa-solid fa-plane-departure"></i> Serviços</h2>
+                            <p class="stagger-2">Produto estratégico para clientes mais céticos. Ofereça a viabilidade de projetos pessoais de curto/médio prazo em vez de deixarem os sonhos parados na gaveta com receio de pegar empréstimo pessoal.</p>
+                            
+                            <div class="detail-features">
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-heart-pulse feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Cuidar da Saúde & Estética</h4>
+                                        <p>Planejamento para procedimentos cirúrgicos, odontológicos e estéticos de alto valor.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-plane-departure feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Viagens & Intercâmbios</h4>
+                                        <p>Férias da família ou períodos sabáticos mundiais sem os juros do cartão.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-graduation-cap feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Estudos</h4>
+                                        <p>Faculdades de medicina, mestrados, MBAs no exterior e treinamentos de ponta.</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fa-solid fa-champagne-glasses feature-icon"></i>
+                                    <div class="feature-text">
+                                        <h4>Festas & Reformas</h4>
+                                        <p>Projetos residenciais express, formaturas milionárias e casamentos dos sonhos.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="segment-detail-image-wrapper">
+                            <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Viagem de avião" class="segment-detail-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7.1: Serviços Taxas -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: center; left: center;"></div>
+                <div class="huge-bg-text" style="font-size: 10vw; color: rgba(255,255,255,0.01);">MÉTRICAS</div>
+                
+                <div class="slide-content">
+                    <h2 class="stagger-1" style="text-align: center;"><i class="fa-solid fa-plane-departure" style="color: var(--color-red); margin-right: 15px;"></i>Serviços <span class="highlight">em Números</span></h2>
+                    <p class="stagger-2" style="text-align: center;">Ensine as famílias a poupar antes de aproveitar, para retornarem de férias 100% livres de compromissos parcelados no Serasa.</p>
+                    
+                    <div class="metrics-container">
+                        <div class="metric-card">
+                            <i class="fa-solid fa-percent metric-icon"></i>
+                            <div class="metric-value">24.20%</div>
+                            <div class="metric-sub">Taxa Administrativa</div>
+                            <p class="metric-label">Comparado aos 400% a.a do cartão de crédito ou 70% a.a do famigerado Crédito Pessoal dos bancões de rua, esta taxa única diluída torna o nosso produto esmagador perante a concorrência e uma venda quase certa.</p>
+                        </div>
+                        <div class="metric-card">
+                            <i class="fa-regular fa-calendar-days metric-icon"></i>
+                            <div class="metric-value">50</div>
+                            <div class="metric-sub">Meses de Prazo</div>
+                            <p class="metric-label">Pouco mais de <strong>4 anos</strong>. Ciclo relativamente curto no mercado financeiro mas fundamental para você engatilhar planejamentos focados como intercâmbios ou debutantes estipuladas do cliente.</p>
+                        </div>
+                    </div>
+                    <p class="metrics-disclaimer">* Os números acima podem variar de acordo com o grupo vigente.</p>
+                </div>
+            </div>
+
+            <!-- Slide 8: Consultant Comparison Grid -->
+            <div class="swiper-slide">
+                <div class="bg-glow" style="top: 20%; right: 20%; background: radial-gradient(circle, rgba(208,2,27,0.1) 0%, transparent 80%);"></div>
+                
+                <div class="slide-content" style="max-width: 1600px; width: 95%;">
+                    <h2 class="stagger-1" style="text-align: center; font-size: 4.5rem; margin-bottom: 1rem;">Onde você quer <span class="highlight">estar?</span></h2>
+                    
+                    <div class="comparison-layout">
+                        <!-- Coluna 1: Simples Consultor -->
+                        <div class="comparison-col col-bad">
+                            <h3 class="comparison-title">Simples Consultor</h3>
+                            <ul class="comparison-list">
+                                <li>Vende apenas o que o cliente pede <i class="fa-solid fa-xmark"></i></li>
+                                <li>Foca no preço e na parcela <i class="fa-solid fa-xmark"></i></li>
+                                <li>Desiste na primeira objeção <i class="fa-solid fa-xmark"></i></li>
+                                <li>Não domina o portfólio completo <i class="fa-solid fa-xmark"></i></li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Coluna 2: Imagem Central -->
+                        <img src="https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Consultor em atendimento" class="comparison-center-img">
+                        
+                        <!-- Coluna 3: Especialista -->
+                        <div class="comparison-col col-good">
+                            <h3 class="comparison-title">Especialista Ademicon</h3>
+                            <ul class="comparison-list">
+                                <li><i class="fa-solid fa-check"></i> Cria cenários e antecipa necessidades</li>
+                                <li><i class="fa-solid fa-check"></i> Vende planejamento e rentabilidade</li>
+                                <li><i class="fa-solid fa-check"></i> Contorna objeções</li>
+                                <li><i class="fa-solid fa-check"></i> Estrutura cross-sell em todos segmentos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9: Encerramento / Top 1 -->
+            <div class="swiper-slide">
+                <!-- Imagem de fundo preenchendo toda a tela -->
+                <div style="position: absolute; inset: 0; background-image: url('img/bg-top1.jpeg'); background-size: cover; background-position: center; z-index: 0; filter: grayscale(10%) contrast(1.1);"></div>
+                <!-- Degradê sobrepondo de baixo para cima -->
+                <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.8) 40%, rgba(10,10,10,0.4) 100%); z-index: 0;"></div>
+                
+                <div class="cover-content" style="flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 1;">
+                    <i class="fa-solid fa-trophy stagger-1" style="font-size: 7rem; color: var(--color-red); margin-bottom: 2rem; filter: drop-shadow(0 0 20px rgba(208,2,27,0.4));"></i>
+                    <h1 class="stagger-2" style="font-size: 5.5rem; margin-bottom: 1rem;">Agora você está apto para<br><span style="color: var(--color-red);">arrebentar nas vendas!</span></h1>
+                    <p class="description stagger-3" style="font-size: 2.5rem; color: #fff; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Espero VOCÊ no top 1 do RANK!</p>
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- Pagination -->
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Initialize Swiper -->
+    <script>
+        var swiper = new Swiper(".mySwiper", {
+            direction: "vertical",
+            slidesPerView: 1,
+            spaceBetween: 0,
+            mousewheel: true,
+            keyboard: {
+                enabled: true,
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+            speed: 800,
+            effect: "slide"
+        });
+    </script>
+</body>
+</html>
